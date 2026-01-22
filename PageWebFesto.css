@@ -1,0 +1,214 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    background-color: #f4f6f8;
+}
+
+
+header,section,footer {
+    max-width: 2000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+
+header {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 110%);
+    color: #ffffff;
+    
+}
+
+header h1 {
+    margin-bottom: 20px;
+}
+
+header p {
+    
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);/*Dégrade diagonal de 135deg allant d'une couleur a une autre.*/
+    margin-top: 30px;
+    
+}
+
+section h2 {
+    margin-bottom: 15px;
+    color: white;
+}
+
+section p {
+    margin-bottom: 12px;
+}
+
+
+footer {
+    text-align: center;
+    color: #666;
+}
+
+/*barre nav*/
+.navbar {
+      padding: 35px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: wheat;
+    }
+
+    .LeMenu a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;/*Margin = distance entre les éléments*/
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    /*dans le body*/
+     .main-content {
+      flex: 1;
+      padding: 60px 20px;
+      text-align: center;
+      position: relative;
+    }
+    .main-content h1 {
+      font-size: 2.5em;
+      color:black;
+      margin-bottom: 20px;
+    }
+    .main-content p {
+      font-size: 1.2em;
+      margin-bottom: 60px;
+    }
+
+    /*video*/
+.ContenuVideo {
+  min-width: 300px;
+  max-width: 700px;
+  text-align: center;
+  margin: 0 auto; 
+}
+
+.TitreDeLaVideo {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #764ba2;
+}
+
+.SourceDeLaVideo{
+  color: #666;
+  margin-top: 10px;
+}
+
+iframe {
+  width: 100%;
+  height: 394px;
+  border-radius: 10px;/*bords arrondis ca*/
+}
+
+.video-row {
+  text-align: center;
+  margin-top: 40px;
+}
+
+
+#burgerMenu{
+  width: 200px;
+  height: 50px;
+  position: absolute; 
+  top: 50px;/*plus c elevé plus le logo est bas*/
+  right: 30px;
+}
+#Festo-logo{
+    width: 200px;
+  height: 50px;
+  position: absolute; 
+  top: 50px;
+  left: 30px;
+}
+
+#burgerMenu {
+    width: 40px;  
+    height: 30px; 
+    position: absolute; 
+    top: 50px;
+    right: 30px;  
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    z-index: 1001; 
+}
+
+.burger-line {
+    width: 100%;
+    height: 4px;
+    background-color: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+
+.LeMenu {
+    position: fixed; /*comme ca le bouton menu ne bouge pas mm quan on defile la page*/
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 280px;
+    background-color: wheat;
+    padding-top: 100px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);/*important pr l'esthetique car sans ca en gros ca donne d'impression que y'a pas delimitation entre le nav et le menu si ils sont de la mm couleur(vert)*/
+    transition: right 0.4s ease; /*c pour que ca fasse plus beau qaund on appuie sur le hum*/
+    z-index: 1000;
+    list-style: none;
+}
+
+.LeMenu.active {
+    right: 0;
+}
+
+.LeMenu li {
+    width: 100%;
+}
+
+.LeMenu a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 20px 30px;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s;
+}
+
+.LeMenu a:hover {
+    background-color:#764ba2;
+}
+
+
+.fermerMenu {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    margin: 20px;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.fermerMenu:hover {
+    opacity: 0.7;
+}
+
+
