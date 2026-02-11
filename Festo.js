@@ -20,24 +20,28 @@ if (FermerMenu) {
 }
 
 // CA SERTAUTHENTIFICATION REST 
+/**
+ * Fonction appelée lors de la connexion
+ * Envoie email + mot de passe au serveur
+ */
 function Seconnecter() {
     const email = document.getElementById('email').value;
-    const motdepasse = document.getElementById('motdepasse').value;
+    const mdp = document.getElementById('mdp').value;
 
-    if (!email || !motdepasse) {
+    if (!email || !mdp) {
         alert("Veuillez remplir tous les champs");
         return;
     }
 
     
-    fetch("rest.php", {
+    fetch("rest.php/connexion", {
         method: "POST", 
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
             email: email,
-            motdepasse: motdepasse
+            mdp: mdp
         })
     })
     .then(response => response.json())
@@ -54,6 +58,51 @@ function Seconnecter() {
         alert("Erreur serveur");
     });
 }
+
+
+function Inscription() {
+    const email = document.getElementById('email').value;
+    const mdp = document.getElementById('mdp').value;
+    const pseudo = document.getElementById('pseudo').value;
+    const nom = document.getElementById('nom').value;
+    const prenom = document.getElementById('prenom').value;
+
+    if (!email || !mdp || !pseudo|| !nom|| !prenom) {
+        alert("Veuillez remplir tous les champs");
+        return;
+    }
+
+    fetch("rest.php/inscription", {
+        method: "POST", 
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: email,
+            mdp: mdp,
+            pseudo: pseudo,
+            nom: nom,
+            prenom: prenom
+
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            localStorage.setItem("user", data.user);
+            window.location.href = "connexion.php";
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Erreur :", error);
+        alert("Erreur serveur");
+    });
+}
+
+
+
 
 //ca protege juste les pages
 function VerifierConnexion() {

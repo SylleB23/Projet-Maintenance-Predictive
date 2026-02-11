@@ -3,26 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Maintenance Prédictive</title>
-    <link rel="stylesheet" href="connexion.css">
-</head>
+    <title>Connexion</title>
+     <link rel="stylesheet" href="connexion.css">
+   
 <body>
     <div class="ContenuBlocConnexion">
         <h2>Connexion</h2>
-        <form id="loginForm" onsubmit="event.preventDefault(); Seconnecter();">
-            <div class="forme">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="votre@email.com" required>
-            </div>
-            <div class="forme">
-                <label for="motdepasse">Mot de passe</label>
-                <input type="password" id="motdepasse" placeholder="••••••••" required>
-            </div>
-            <!-- Zone pour afficher les messages d'erreur -->
-            <div id="errorMessage"></div>
-            
-            <button type="submit">Se connecter</button>
-        </form>
+        <div class="forme">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="votre@email.com" required>
+        </div>
+        <div class="forme">
+            <label for="mdp">Mot de passe</label>
+            <input type="password" id="mdp" placeholder="••••••••" required>
+        </div>
+        <button onclick="Seconnecter()">Se connecter</button>
         <div class="links">
             <a href="#">Mot de passe oublié ?</a>
         </div>
