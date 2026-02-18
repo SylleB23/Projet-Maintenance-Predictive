@@ -1,4 +1,3 @@
-
 // GESTION DU MENU BURGER
 // ========================================
 const burgerMenu = document.getElementById('burgerMenu');
@@ -19,7 +18,7 @@ if (FermerMenu) {
     });
 }
 
-// CA SERTAUTHENTIFICATION REST 
+// CA SERT AUTHENTIFICATION REST 
 /**
  * Fonction appelée lors de la connexion
  * Envoie email + mot de passe au serveur
@@ -59,16 +58,101 @@ function Seconnecter() {
     });
 }
 
-
+/**
+ * Fonction d'inscription avec redirection vers page de succès
+ */
 function Inscription() {
-    const email = document.getElementById('email').value;
-    const mdp = document.getElementById('mdp').value;
-    const pseudo = document.getElementById('pseudo').value;
     const nom = document.getElementById('nom').value;
     const prenom = document.getElementById('prenom').value;
-
-    if (!email || !mdp || !pseudo|| !nom|| !prenom) {
-        alert("Veuillez remplir tous les champs");
+    const pseudo = document.getElementById('pseudo').value;
+    const email = document.getElementById('email').value;
+    const mdp = document.getElementById('mdp').value;
+    const mdpConfirm = document.getElementById('mdpConfirm').value;
+    
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (!nom || !prenom || !pseudo || !email || !mdp) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Veuillez remplir tous les champs';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Veuillez remplir tous les champs");
+        }
+        return;
+    }
+    
+    if (mdpConfirm && mdp !== mdpConfirm) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Les mots de passe ne correspondent pas';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Les mots de passe ne correspondent pas");
+        }
+        return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Veuillez entrer une adresse email valide';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Veuillez entrer une adresse email valide");
+        }
+        return;
+    }
+    
+    if (mdp.length < 8) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Le mot de passe doit contenir au moins 8 caractères';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Le mot de passe doit contenir au moins 8 caractères");
+        }
+        return;
+    }
+    
+    // Vérification de la présence de majuscules
+    if (!/[A-Z]/.test(mdp)) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Le mot de passe doit contenir au moins une lettre majuscule';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Le mot de passe doit contenir au moins une lettre majuscule");
+        }
+        return;
+    }
+    
+    // Vérification de la présence de minuscules
+    if (!/[a-z]/.test(mdp)) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Le mot de passe doit contenir au moins une lettre minuscule';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Le mot de passe doit contenir au moins une lettre minuscule");
+        }
+        return;
+    }
+    
+    // Vérification de la présence de chiffres
+    if (!/[0-9]/.test(mdp)) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Le mot de passe doit contenir au moins un chiffre';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Le mot de passe doit contenir au moins un chiffre");
+        }
+        return;
+    }
+    
+    // Vérification de la présence de caractères spéciaux
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(mdp)) {
+        if (errorMessage) {
+            errorMessage.textContent = 'Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*...)';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Le mot de passe doit contenir au moins un caractère spécial");
+        }
         return;
     }
 
@@ -83,39 +167,59 @@ function Inscription() {
             pseudo: pseudo,
             nom: nom,
             prenom: prenom
-
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
             localStorage.setItem("user", data.user);
-            window.location.href = "connexion.php";
+            window.location.href = "inscription_success.php";
         } else {
-            alert(data.message);
+            if (errorMessage) {
+                errorMessage.textContent = data.message || 'Erreur lors de l\'inscription';
+                errorMessage.style.color = 'red';
+            } else {
+                alert(data.message);
+            }
         }
     })
     .catch(error => {
         console.error("Erreur :", error);
-        alert("Erreur serveur");
+        if (errorMessage) {
+            errorMessage.textContent = 'Erreur de connexion au serveur';
+            errorMessage.style.color = 'red';
+        } else {
+            alert("Erreur serveur");
+        }
     });
 }
 
-
-
-
-//ca protege juste les pages
-function VerifierConnexion() {
-    if (!localStorage.getItem("user")) {
-        window.location.href = "connexion.php";
+/**
+ * Fonction de compte à rebours et redirection pour la page de succès
+ */
+function initTransition() {
+    const TransitionElement = document.getElementById('transition');
+    
+    if (TransitionElement) {
+        let secondes = 5;//initialisation compteur
+        
+        const interval = setInterval(() => {//"Exécute cette fonction toutes les X millisecondes"
+            secondes--;//on decremente en seconde(on enleve 1s)
+            TransitionElement.textContent = secondes;
+            
+            if (secondes <= 0) {
+                clearInterval(interval);//On arrête le compteur.
+                window.location.href = 'PageWebFesto.php';
+            }
+        }, 1000);//Donc la fonction s’exécute toutes les secondes.
     }
 }
 
 
-function Deconnexion() {
-    localStorage.removeItem("user");
-    window.location.href = "connexion.php";
-}
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    initTransition();
+});
 
 
 // ========================================
@@ -150,7 +254,6 @@ function suiviAjax() {
  */
 async function recupererDonneesCapteurs() {
     try {
-        // Utiliser la fonction avec authentification
         const reponseAPI = await fetchProtectedData('http://127.0.0.1/api/capteurs');
         
         if (!reponseAPI) return;
@@ -237,3 +340,4 @@ async function recupererDonneesUtilisateurs() {
         alert('Erreur lors de la récupération des utilisateurs');
     }
 }
+
