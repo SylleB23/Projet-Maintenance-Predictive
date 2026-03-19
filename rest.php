@@ -4,9 +4,7 @@ header("Content-Type: application/json");
 try {
     // Connexion à la BD
     $pdo = new PDO(
-        "mysql:host=172.18.201.103;dbname=festo;charset=utf8",
-        "sylleman",
-        "festo",
+        "mysql:host=172.18.201.103;dbname=festo;charset=utf8","sylleman","festo",
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]
@@ -21,14 +19,13 @@ $req_type = $_SERVER['REQUEST_METHOD'];
 $cheminURL = $_SERVER['PATH_INFO'] ?? '/'; // ?? permet d'acceder au serveur.Sans ca le msg "impossible d'accéder au serveur" s'afficheet évite Undefined index: PATH_INFO -> garantit que $cheminURL a toujours une valeur
 $cheminURL_tableau = explode('/', trim($cheminURL, '/')); // trim: ajoute au debut ou efface des caracteres a la fin
 
-// =======================
-// GESTION DU GET
-// =======================
-if ($req_type === 'POST') { 
 
-    // =======================
+  // =======================
     // Connexion
     // =======================
+
+if ($req_type === 'POST') { 
+
     if (isset($cheminURL_tableau[0]) && $cheminURL_tableau[0] === "connexion") {//ligne tres impotante sinon le chemin get connexion ne fonctionne pas 
 
         // Lecture du JSON envoyé par Festo.js
@@ -127,7 +124,7 @@ if ($req_type === 'POST') {
 
 
 // =======================
-// GESTION DU POST
+// Inscription
 // =======================
 if ($req_type === 'POST') {
 
@@ -136,7 +133,7 @@ if ($req_type === 'POST') {
         // Lecture du JSON envoyé par Festo.js
         $donneesRecues = json_decode(file_get_contents('php://input'), true);
 
-        $nom    = $donneesRecues['nom'] ?? '';
+        $nom    = $donneesRecues['nom'] ?? '';//?? garanti qu'on recois tjr des données.Si $donneesRecues['email'] existe → utilise cette valeur dans email//Sinon → utilise '' (chaîne vide)//Évite les erreurs si le champ n'existe pas
         $prenom = $donneesRecues['prenom'] ?? '';
         $email  = $donneesRecues['email'] ?? '';
         $pseudo = $donneesRecues['pseudo'] ?? '';
@@ -178,6 +175,102 @@ if ($req_type === 'POST') {
     }
 }
 
+
+// =======================
+// RECUPERER LES DONNEES
+// =======================
+
+if ($req_type === 'GET') {
+
+    if ($cheminURL_tableau[0] === "donnees") {
+
+        $requete = $pdo->prepare(
+            "SELECT iddonnees,idscenario,
+            Time_React_Extract1,
+            Time_React_Retract1,
+            Time_Travel_Extract1,
+            Time_Travel_Retract1
+            FROM donnees"
+        );
+
+        $requete->execute();
+
+        $resultat = $requete->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($resultat);
+        exit;
+    }
+}
+
+// =======================
+// ALERTES
+// =======================
+
+if ($req_type === 'GET') {
+
+    if ($cheminURL_tableau[0] === "alertes") {
+
+        $requete = $pdo->prepare(
+            "SELECT 
+                alerte.idalertes,
+                alerte.idscenario,
+                alerte.idverin,
+                alerte.type_alerte,
+                scenario.date
+             FROM alertes alerte
+             JOIN scenario scenario
+             ON alerte.idscenario = scenario.idscenario
+             ORDER BY scenario.date DESC"
+        );
+
+        $requete->execute();
+
+        $resultat = $requete->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($resultat);
+
+        exit;
+    }
+
+}
+// =======================
+// GRAPHE
+// =======================
+
+if ($req_type === 'GET') {
+
+    if ($cheminURL_tableau[0] === "graphe") {
+
+        $idscenario = $cheminURL_tableau[1] ?? null;
+
+        if (!$idscenario) {
+            http_response_code(400);
+            echo json_encode(["erreur" => "ID scenario manquant"]);
+            exit;
+        }
+
+        $requete = $pdo->prepare(
+            "SELECT 
+                d.date,
+                d.Time_React_Extract1,
+                d.Time_React_Retract1,
+                d.Time_Travel_Extract1,
+                d.Time_Travel_Retract1
+            FROM donnees d
+            WHERE d.idscenario = ?
+            ORDER BY d.date ASC
+            LIMIT 50
+        "
+        );
+
+        $requete->execute([$idscenario]);
+
+        $resultat = $requete->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($resultat);
+        exit;
+    }
+}
 // =======================
 // ROUTE INCONNUE
 // =======================

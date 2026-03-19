@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
 <meta charset="UTF-8">
 <title>Maintenance prédictive</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="PageWebFesto.css">
-
 </head>
 
 <body>
@@ -22,45 +20,46 @@
 
 <ul class="LeMenu" id="leMenu">
 <img src="fleche.jpg" id="FermerMenu" class="fermerMenu"/>
+
+<li><a href="EspacePersonnel.php">Espace Personnel</a></li>
 <li><a href="Historique.php">Historique des alertes</a></li>
-<li><a href="TableauDonnees.php">Tableau de données du verin</a></li>
 <li><a href="Scenario.php">Scenario</a></li>
 <li><a href="PageWebFesto.php">Deconnexion</a></li>
+
 </ul>
 
 <main class="main-content">
-<h1>Bienvenue dans votre Espace Personnel</h1>
-<h1>EPATANT</h1>
-</main>
+
+<h1>Données du verin</h1>
+<h1>EPATANT x3</h1>
 
 <section>
-<h2>Graphiques des données des verins</h2>
 
-<div id="grapheContainer">
-<canvas id="monGraphe"></canvas>
-</div>
+<h2>Tableau de données</h2>
+
+<div id="tableauDonnees"></div>
 
 </section>
+
+</main>
 
 <footer>
 <p>&copy; 2026 – Projet Maintenance prédictive</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="Festo.js"></script>
 
 <script>
+
+/* Lancer la récupération des données automatiquement */
+
 document.addEventListener("DOMContentLoaded", function(){
 
-if(document.getElementById("monGraphe")){
-
-    TraceGrapheFesto(12); 
-
-    setInterval(() => {
-        TraceGrapheFesto(12); 
-    }, 2000);
-
-}
+recupererDonneesCapteurs();
 
 });
+
 </script>
+
+</body>
+</html>

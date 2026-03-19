@@ -1,0 +1,84 @@
+/* --- STYLE DE LA CARTE DE SUCCÈS --- */
+.success {
+    text-align: center;
+    padding: 60px 40px;
+    max-width: 600px;
+    margin: 100px auto;
+    
+    /* Style Navy & Gold (identique aux formulaires) */
+    background: rgba(17, 34, 64, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    
+    /* Bordure et ombres dorées */
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 25px;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(255, 215, 0, 0.1);
+    
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Animation d'apparition */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- TITRE DE SUCCÈS --- */
+.success h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+    
+    /* Dégradé Doré (au lieu du vert plat) pour rester dans le thème luxe */
+    background: linear-gradient(to right, #ffd700, #d4af37);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* --- PARAGRAPHES --- */
+.success-p {
+    font-size: 1.1rem; /* 18px */
+    color: #8892b0; /* Gris clair du thème */
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.transition {
+    font-size: 1rem; /* 16px */
+    color: #a8b2d1;
+    margin-top: 30px;
+}
+
+/* --- BOUTON DE REDIRECTION --- */
+.redirect-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 16px 35px;
+    
+    /* Style bouton Gold */
+    background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+    color: #0a192f; /* Texte Navy */
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 12px;
+    
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.redirect-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+    color: #0a192f; /* On force la couleur au survol */
+}
+
+.redirect-link:active {
+    transform: translateY(1px);
+}

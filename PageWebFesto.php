@@ -90,7 +90,7 @@
     </section>
 
     <footer>
-        <p>&copy; 2025 – Projet Maintenance prédictive</p>
+        <p>&copy; 2026 – Projet Maintenance prédictive</p>
     </footer>
 
     <script src="Festo.js"></script>
