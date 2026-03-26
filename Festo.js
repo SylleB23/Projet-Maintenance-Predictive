@@ -449,7 +449,7 @@ if(!monGraph){
 
 function TraceGrapheFesto(idscenario) {
 
-fetch("http://127.0.0.1/Projet%20Maintenance%20Predictive/rest.php/graphe/" + idscenario)
+fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=graphe/" + idscenario)
 
 .then(response => {
     if (!response.ok) {
@@ -471,46 +471,100 @@ fetch("http://127.0.0.1/Projet%20Maintenance%20Predictive/rest.php/graphe/" + id
     let tE = [];
     let tR = [];
 
-    // 🔴 seuils (tu peux ajuster)
-    let seuilReact = 40;
-    let seuilTravel = 260;
+    // ===============================
+    //  SEUILS (à adapter si besoin)
+    // ===============================
+    let seuilReact = 10;
+    let seuilTravel = 200;
 
     let anomalieDetectee = false;
+
+    // 🔥 évite spam GLOBAL
+    if (typeof window.alerteEnvoyeeGlobal === "undefined") {
+        window.alerteEnvoyeeGlobal = false;
+    }
 
     for (let i = 0; i < data.length; i++) {
 
         if (data[i].date) {
 
+            // ===============================
+            //  EXTRACTION DES DONNÉES
+            // ===============================
             heures.push(new Date(data[i].date).toLocaleTimeString());
 
-            let valRE = Number(data[i].Time_React_Extract1);
-            let valRR = Number(data[i].Time_React_Retract1);
-            let valTE = Number(data[i].Time_Travel_Extract1);
-            let valTR = Number(data[i].Time_Travel_Retract1);
+            let valRE = parseFloat(data[i].Time_React_Extract1) || 0;
+            let valRR = parseFloat(data[i].Time_React_Retract1) || 0;
+            let valTE = parseFloat(data[i].Time_Travel_Extract1) || 0;
+            let valTR = parseFloat(data[i].Time_Travel_Retract1) || 0;
+
+            console.log("VALEURS :", valRE, valRR, valTE, valTR);
 
             rE.push(valRE);
             rR.push(valRR);
             tE.push(valTE);
             tR.push(valTR);
 
-            // 🚨 Détection anomalie
-            if (valRE > seuilReact || valRR > seuilReact || valTE > seuilTravel || valTR > seuilTravel) {
-                
+            // ===============================
+            //  DÉTECTION ANOMALIE
+            // ===============================
+            if (
+                valRE > seuilReact ||
+                valRR > seuilReact ||
+                valTE > seuilTravel ||
+                valTR > seuilTravel
+            ) {
+
                 anomalieDetectee = true;
 
-                console.warn("⚠️ Anomalie détectée à :", data[i].date);
+                // 🔥 ENVOI UNE SEULE FOIS PAR CYCLE
+                if (!window.alerteEnvoyeeGlobal) {
 
+                    window.alerteEnvoyeeGlobal = true;
+
+                    console.warn("🚨 ANOMALIE DÉTECTÉE !");
+                    console.log({
+                        React_Extract: valRE,
+                        React_Retract: valRR,
+                        Travel_Extract: valTE,
+                        Travel_Retract: valTR,
+                        date: data[i].date
+                    });
+
+                    fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=ajouter-alerte", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            idscenario: idscenario,
+                            idverin: 1,
+                            type_alerte: "anomalie"
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(res => console.log("Alerte envoyée :", res))
+                    .catch(err => console.error("Erreur envoi alerte :", err));
+                }
             }
         }
     }
 
-
-    if (anomalieDetectee) {
-        document.body.style.backgroundColor = "#2b0000"; // fond rouge léger
-    } else {
-        document.body.style.backgroundColor = ""; // reset
+    // ===============================
+    // 🔥 RESET SI PLUS D’ANOMALIE
+    // ===============================
+    if (!anomalieDetectee) {
+        window.alerteEnvoyeeGlobal = false;
     }
 
+    // ===============================
+    // FEEDBACK VISUEL
+    // ===============================
+    document.body.style.backgroundColor = anomalieDetectee ? "#2b0000" : "";
+
+    // ===============================
+    //  GRAPHE
+    // ===============================
     Graph(heures, rE, rR, tE, tR);
 
 })
@@ -518,35 +572,74 @@ fetch("http://127.0.0.1/Projet%20Maintenance%20Predictive/rest.php/graphe/" + id
 .catch(error => {
     console.error("Erreur API :", error);
 });
-
 }
-// function mettreAJourLeCompteur()
-// {
-//   const dateStage = Date.UTC(2021, 5, 24, 8, 0, 0);
-//   const dateNow = Date.now();
-//   //console.debug("Nombre de millisecondes stage : " + utcDateStage);
-//   //console.debug("Nombre de millisecondes maintenant : " + utcDateNow);
+/* =============================== */
+/* POPUP ALERTES TEMPS REEL */
+/* =============================== */
 
+let derniereAlerteId = null;
 
-//   var diff = dateStage - dateNow;
-//   //console.debug("Nombre de millisecondes : " + diff);
-//   var diffJours = Math.floor(diff / (1000*60*60*24));
-//   //console.debug("Nombre de jours : " + diffJours);
-//   var diffHeures = Math.floor( (diff - (diffJours * 24 * 60 * 60 * 1000)) / (1000 * 60 * 60) );
-//   //console.debug("Nombre d'heures : " + diffHeures);
-//   var diffMinutes = Math.floor((diff - (diffJours * 24 * 60 * 60 * 1000) - (diffHeures * 60 * 60 * 1000)) / (1000 * 60))
-//   //console.debug("Nombre de minutes : " + diffMinutes);
-//   var diffSecondes = Math.floor((diff - (diffJours * 24 * 60 * 60 * 1000) - (diffHeures * 60 * 60 * 1000) - (diffMinutes * 60 * 1000)) / (1000))
-//   //console.debug("Nombre de secondes : " + diffSecondes);
+// Fonction pour déterminer la gravité
+function determinerGravite(type) {
 
-//   document.getElementById("nb_jours").innerHTML = diffJours+"J";
-//   document.getElementById("nb_heures").innerHTML = diffHeures+"H";
-//   document.getElementById("nb_minutes").innerHTML = diffMinutes+"M";
-//   document.getElementById("nb_secondes").innerHTML = diffSecondes+"S";
+    if (!type) return "FAIBLE";
 
-// }
+    if (type.toLowerCase().includes("critique")) {
+        return "CRITIQUE";
+    } 
+    else if (type.toLowerCase().includes("anomalie")) {
+        return "MOYENNE";
+    } 
+    else {
+        return "FAIBLE";
+    }
+}
 
+// Création du popup
+function afficherPopupAlerte(alerte) {
 
+    const gravite = determinerGravite(alerte.type_alerte);
 
-// document.getElementById("nav_inscription").addEventListener('click', changerSection);
-// document.getElementById("nav_connexion").addEventListener('click', changerSection);
+    const popup = document.createElement("div");
+    popup.className = "popup-alerte";
+
+    popup.innerHTML = `
+        <div class="popup-content">
+            <span class="popup-close">&times;</span>
+            <h3>⚠️ ALERTE</h3>
+            <p>Anomalie détectée</p>
+            <p><strong>Gravité :</strong> ${gravite}</p>
+            <p><strong>Vérin :</strong> ${alerte.idverin}</p>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    popup.querySelector(".popup-close").onclick = () => popup.remove();
+
+    setTimeout(() => {
+        popup.remove();
+    }, 5000);
+}
+
+// Vérification temps réel
+async function verifierAlertesTempsReel() {
+
+    try {
+
+        const res = await fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=derniere-alerte");
+        const data = await res.json();
+
+        console.log("📡 API ALERTES :", data);
+
+        if (!data || !data.idalertes) return;
+
+        // 🔥 SUPPRESSION DU BLOCAGE localStorage
+        console.warn("🚨 POPUP AFFICHÉ");
+
+        afficherPopupAlerte(data);
+
+    } catch (e) {
+        console.error("Erreur alerte temps réel :", e);
+    }
+}

@@ -52,15 +52,24 @@
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
-if(document.getElementById("monGraphe")){
+    if(document.getElementById("monGraphe")){
 
-    TraceGrapheFesto(12); 
-
-    setInterval(() => {
         TraceGrapheFesto(12); 
-    }, 2000);
 
-}
+        setInterval(() => {
+            TraceGrapheFesto(12); 
+        }, 2000);
+
+    }
+
+    // AJOUT TEMPS REEL ALERTES (sécurisé)
+    setInterval(() => {
+        if (typeof verifierAlertesTempsReel === "function") {
+            verifierAlertesTempsReel();
+        } else {
+            console.error("verifierAlertesTempsReel non chargé");
+        }
+    }, 3000);
 
 });
 </script>
