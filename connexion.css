@@ -199,46 +199,18 @@ button:active {
 }
 
 /* --- MESSAGE D'ERREUR (Inscription) --- */
+
 #errorMessage {
-    /* On ne met PAS display: none, sinon le JS doit le réafficher */
-    min-height: 20px; /* Réserve un peu d'espace pour ne pas faire 'sauter' la mise en page */
-    margin-top: 15px;
-    margin-bottom: 10px;
+    color: var(--error-red);
     text-align: center;
+    margin-top: 15px;
     font-size: 0.9rem;
-    color: #ff6b6b; /* Couleur rouge par défaut */
-    
-    /* Uniquement visible si du texte est dedans */
+
     background: rgba(255, 107, 107, 0.1);
-    border: 1px solid rgba(255, 107, 107, 0.3);
-    border-radius: 8px;
     padding: 10px;
-    
-    /* Animation d'apparition fluide */
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+
+    display: none; /* ✅ caché par défaut avec ca on peut gerer le fait qu'ont affiche ou non le block quand une des restriction n'est pas respecté en bas de mdp dans festo.js**/
 }
 
-/* --- ADAPTATION POUR L'INSCRIPTION (Formulaire long) --- */
-/* Si l'écran est petit, on permet à la carte de scroller pour ne pas couper le formulaire */
-@media (max-height: 800px) {
-    body {
-        align-items: flex-start; /* Aligne en haut si l'écran est petit en hauteur */
-    }
-    .ContenuBlocConnexion {
-        margin: 40px auto; /* Marges verticales */
-    }
-}
-
-/* --- RESPONSIVE MOBILE --- */
-@media (max-width: 500px) {
-    .ContenuBlocConnexion {
-        padding: 30px 25px;
-    }
-    .ContenuBlocConnexion h2 {
-        font-size: 2rem;
-    }
-    button {
-        padding: 14px;
-    }
-}

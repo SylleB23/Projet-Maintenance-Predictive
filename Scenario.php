@@ -12,7 +12,7 @@
             <a href="#" class="logo">
                 <img src="Festo-logo.png" id="Festo-logo"/>
             </a>
-            <img src="burger-menu.svg" id="burgerMenu"/>
+            <img src="burger-menu.png" id="burgerMenu"/>
         </nav>
     </header>
 
@@ -28,7 +28,7 @@
     <header>
         <main class="main-content">
            <h1>Scenario</h1>
-           <h1>EPATANT x4 </h1>
+           <!-- <h1>EPATANT x4 </h1> -->
         </main>
     </header>
     <section>

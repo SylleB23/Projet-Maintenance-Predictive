@@ -58,9 +58,6 @@ function Seconnecter() {
     });
 }
 
-/**
- * Fonction d'inscription avec redirection vers page de succès
- */
 function Inscription() {
     const nom = document.getElementById('nom').value;
     const prenom = document.getElementById('prenom').value;
@@ -70,92 +67,66 @@ function Inscription() {
     const mdpConfirm = document.getElementById('mdpConfirm').value;
     
     const errorMessage = document.getElementById('errorMessage');
-    
+
+    //  RESET À CHAQUE CLIC
+    if (errorMessage) {
+        errorMessage.style.display = "none";
+        errorMessage.textContent = "";
+    }
+
+    //  FONCTION POUR ÉVITER DE RÉPÉTER
+    function showError(msg) {
+        if (errorMessage) {
+            errorMessage.style.display = "block";
+            errorMessage.textContent = msg;
+            errorMessage.style.color = "#ff4d4d";
+        } else {
+            alert(msg);
+        }
+    }
+
     if (!nom || !prenom || !pseudo || !email || !mdp) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Veuillez remplir tous les champs';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Veuillez remplir tous les champs");
-        }
-        return;
-    }
-    
-    if (mdpConfirm && mdp !== mdpConfirm) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Les mots de passe ne correspondent pas';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Les mots de passe ne correspondent pas");
-        }
-        return;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Veuillez entrer une adresse email valide';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Veuillez entrer une adresse email valide");
-        }
-        return;
-    }
-    
-    if (mdp.length < 8) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Le mot de passe doit contenir au moins 8 caractères';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Le mot de passe doit contenir au moins 8 caractères");
-        }
-        return;
-    }
-    
-    // Vérification de la présence de majuscules
-    if (!/[A-Z]/.test(mdp)) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Le mot de passe doit contenir au moins une lettre majuscule';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Le mot de passe doit contenir au moins une lettre majuscule");
-        }
-        return;
-    }
-    
-    // Vérification de la présence de minuscules
-    if (!/[a-z]/.test(mdp)) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Le mot de passe doit contenir au moins une lettre minuscule';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Le mot de passe doit contenir au moins une lettre minuscule");
-        }
-        return;
-    }
-    
-    // Vérification de la présence de chiffres
-    if (!/[0-9]/.test(mdp)) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Le mot de passe doit contenir au moins un chiffre';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Le mot de passe doit contenir au moins un chiffre");
-        }
-        return;
-    }
-    
-    // Vérification de la présence de caractères spéciaux
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(mdp)) {
-        if (errorMessage) {
-            errorMessage.textContent = 'Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*...)';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Le mot de passe doit contenir au moins un caractère spécial");
-        }
+        showError('Veuillez remplir tous les champs');
         return;
     }
 
+    if (mdp !== mdpConfirm) {
+        showError('Les mots de passe ne correspondent pas');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Veuillez entrer une adresse email valide');
+        return;
+    }
+
+    if (mdp.length < 8) {
+        showError('Le mot de passe doit contenir au moins 8 caractères');
+        return;
+    }
+
+    if (!/[A-Z]/.test(mdp)) {
+        showError('Le mot de passe doit contenir au moins une lettre majuscule');
+        return;
+    }
+
+    if (!/[a-z]/.test(mdp)) {
+        showError('Le mot de passe doit contenir au moins une lettre minuscule');
+        return;
+    }
+
+    if (!/[0-9]/.test(mdp)) {
+        showError('Le mot de passe doit contenir au moins un chiffre');
+        return;
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(mdp)) {
+        showError('Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*...)');
+        return;
+    }
+
+    // SI TOUT EST OK
     fetch("rest.php/inscription", {
         method: "POST", 
         headers: {
@@ -175,22 +146,12 @@ function Inscription() {
             localStorage.setItem("user", data.user);
             window.location.href = "inscription_success.php";
         } else {
-            if (errorMessage) {
-                errorMessage.textContent = data.message || 'Erreur lors de l\'inscription';
-                errorMessage.style.color = 'red';
-            } else {
-                alert(data.message);
-            }
+            showError(data.message || "Erreur lors de l'inscription");
         }
     })
     .catch(error => {
         console.error("Erreur :", error);
-        if (errorMessage) {
-            errorMessage.textContent = 'Erreur de connexion au serveur';
-            errorMessage.style.color = 'red';
-        } else {
-            alert("Erreur serveur");
-        }
+        showError("Erreur de connexion au serveur");
     });
 }
 
@@ -449,7 +410,7 @@ if(!monGraph){
 
 function TraceGrapheFesto(idscenario) {
 
-fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=graphe/" + idscenario)
+fetch("https://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php/graphe/" + idscenario)
 
 .then(response => {
     if (!response.ok) {
@@ -465,37 +426,35 @@ fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=gr
         return;
     }
 
-    let heures = [];
+let heures = [];
     let rE = [];
-    let rR = [];
-    let tE = [];
-    let tR = [];
+        let rR = [];
+            let tE = [];
+                let tR = [];
 
     // ===============================
     //  SEUILS (à adapter si besoin)
     // ===============================
     let seuilReact = 10;
-    let seuilTravel = 200;
-
-    let anomalieDetectee = false;
-
-    // 🔥 évite spam GLOBAL
+        let seuilTravel = 200;
+let anomalieDetectee = false;
+    //  évite spam GLOBAL
     if (typeof window.alerteEnvoyeeGlobal === "undefined") {
         window.alerteEnvoyeeGlobal = false;
     }
 
-    for (let i = 0; i < data.length; i++) {
+for (let i = 0; i < data.length; i++) {
 
-        if (data[i].date) {
+    if (data[i].date) {
 
             // ===============================
             //  EXTRACTION DES DONNÉES
             // ===============================
-            heures.push(new Date(data[i].date).toLocaleTimeString());
+heures.push(new Date(data[i].date).toLocaleTimeString());
 
-            let valRE = parseFloat(data[i].Time_React_Extract1) || 0;
-            let valRR = parseFloat(data[i].Time_React_Retract1) || 0;
-            let valTE = parseFloat(data[i].Time_Travel_Extract1) || 0;
+let valRE = parseFloat(data[i].Time_React_Extract1) || 0;
+    let valRR = parseFloat(data[i].Time_React_Retract1) || 0;
+        let valTE = parseFloat(data[i].Time_Travel_Extract1) || 0;
             let valTR = parseFloat(data[i].Time_Travel_Retract1) || 0;
 
             console.log("VALEURS :", valRE, valRR, valTE, valTR);
@@ -508,21 +467,17 @@ fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=gr
             // ===============================
             //  DÉTECTION ANOMALIE
             // ===============================
-            if (
-                valRE > seuilReact ||
-                valRR > seuilReact ||
-                valTE > seuilTravel ||
-                valTR > seuilTravel
-            ) {
+    if (
+        valRE > seuilReact ||valRR > seuilReact ||valTE > seuilTravel ||valTR > seuilTravel) {
 
                 anomalieDetectee = true;
 
-                // 🔥 ENVOI UNE SEULE FOIS PAR CYCLE
+                // ENVOI UNE SEULE FOIS PAR CYCLE
                 if (!window.alerteEnvoyeeGlobal) {
 
                     window.alerteEnvoyeeGlobal = true;
 
-                    console.warn("🚨 ANOMALIE DÉTECTÉE !");
+                    console.warn(" ANOMALIE DÉTECTÉE !");
                     console.log({
                         React_Extract: valRE,
                         React_Retract: valRR,
@@ -531,7 +486,7 @@ fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=gr
                         date: data[i].date
                     });
 
-                    fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=ajouter-alerte", {
+                    fetch("https://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php/ajouter-alerte", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -551,14 +506,14 @@ fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=gr
     }
 
     // ===============================
-    // 🔥 RESET SI PLUS D’ANOMALIE
+    //  RESET SI Y'A PLUS D’ANOMALIE
     // ===============================
-    if (!anomalieDetectee) {
-        window.alerteEnvoyeeGlobal = false;
+if (!anomalieDetectee) {
+    window.alerteEnvoyeeGlobal = false;
     }
 
     // ===============================
-    // FEEDBACK VISUEL
+    // FEEDBACK VISUEL EN CAS D'ANOMALIE
     // ===============================
     document.body.style.backgroundColor = anomalieDetectee ? "#2b0000" : "";
 
@@ -606,7 +561,7 @@ function afficherPopupAlerte(alerte) {
     popup.innerHTML = `
         <div class="popup-content">
             <span class="popup-close">&times;</span>
-            <h3>⚠️ ALERTE</h3>
+            <h3>ALERTE</h3>
             <p>Anomalie détectée</p>
             <p><strong>Gravité :</strong> ${gravite}</p>
             <p><strong>Vérin :</strong> ${alerte.idverin}</p>
@@ -627,19 +582,19 @@ async function verifierAlertesTempsReel() {
 
     try {
 
-        const res = await fetch("http://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php?route=derniere-alerte");
+        const res = await fetch("https://172.18.201.103/Projet%20Maintenance%20Predictive/rest.php/derniere-alerte");
         const data = await res.json();
 
-        console.log("📡 API ALERTES :", data);
+        console.log("API ALERTES :", data);
 
         if (!data || !data.idalertes) return;
 
-        // 🔥 SUPPRESSION DU BLOCAGE localStorage
-        console.warn("🚨 POPUP AFFICHÉ");
+        //  SUPPRESSION DU BLOCAGE localStorage
+        console.warn(" POPUP AFFICHÉ");
 
         afficherPopupAlerte(data);
 
-    } catch (e) {
-        console.error("Erreur alerte temps réel :", e);
+    } catch (erreurmec) {
+        console.error("Erreur alerte temps réel :", erreurmec);
     }
 }

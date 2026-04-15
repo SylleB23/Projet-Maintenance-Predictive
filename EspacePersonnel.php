@@ -16,7 +16,7 @@
 <a href="#" class="logo">
 <img src="Festo-logo.png" id="Festo-logo"/>
 </a>
-<img src="burger-menu.svg" id="burgerMenu"/>
+<img src="burger-menu.png" id="burgerMenu"/>
 </nav>
 </header>
 
@@ -54,10 +54,10 @@ document.addEventListener("DOMContentLoaded", function(){
 
     if(document.getElementById("monGraphe")){
 
-        TraceGrapheFesto(12); 
+        TraceGrapheFesto(14); 
 
         setInterval(() => {
-            TraceGrapheFesto(12); 
+            TraceGrapheFesto(14); 
         }, 2000);
 
     }
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function(){
         } else {
             console.error("verifierAlertesTempsReel non chargé");
         }
-    }, 3000);
+    }, 15000);
 
 });
 </script>
