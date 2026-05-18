@@ -12,7 +12,7 @@
             <a href="#" class="logo">
                 <img src="Festo-logo.png" id="Festo-logo"/>
             </a>
-            <img src="burger-menu.svg" id="burgerMenu"/>
+            <img src="burger-menu.png" id="burgerMenu"/>
         </nav>
     </header>
 
@@ -20,6 +20,7 @@
         <img src="fleche.jpg" id="FermerMenu" class="fermerMenu"/>
         <li><a href="connexion.php">Connexion</a></li>
         <li><a href="inscription.php">Inscription</a></li>
+        <li><a href="Documentation.php">Documentation du site</a></li>
     </ul>
 
     <header>
