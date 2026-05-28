@@ -123,68 +123,6 @@ if ($req_type === 'POST') {
     }
 
 
-// =======================
-// Inscription
-// =======================
-if ($req_type === 'POST') {
-
-    if ($cheminURL_tableau[0] === "inscription") {
-
-        // Lecture du JSON envoyé par Festo.js
-        $donneesRecues = json_decode(file_get_contents('php://input'), true);
-
-        $nom    = $donneesRecues['nom'] ?? '';   //?? garanti qu'on recois tjr des données. Si $donneesRecues['email'] existe → utilise cette valeur dans email
-        // //Sinon → utilise '' (chaîne vide)//Évite les erreurs si le champ n'existe pas
-        $prenom = $donneesRecues['prenom'] ?? '';
-        $email  = $donneesRecues['email'] ?? '';
-        $pseudo = $donneesRecues['pseudo'] ?? '';
-
-        // Hash du mot de passe
-        $mdp = !empty($donneesRecues['mdp'])
-            ? password_hash($donneesRecues['mdp'], PASSWORD_DEFAULT)
-            : '';
-
-        if (!empty($email) && !empty($mdp)) {
-
-            // Vérifier si l'email existe déjà
-            $check = $pdo->prepare("SELECT idutilisateur FROM utilisateur WHERE email = :email LIMIT 1");
-            $check->execute([':email' => $email]);
-            if ($check->fetch()) {
-                http_response_code(409);
-                echo json_encode(["error" => "Email déjà utilisé"]);
-                exit;
-            }
-
-            // insertion dans la base de données
-            $requete = $pdo->prepare(
-                "INSERT INTO utilisateur (nom, prenom, email, mdp, pseudo)
-                 VALUES (:nom, :prenom, :email, :mdp, :pseudo)"
-            );
-
-            $requete->execute([
-                ':nom'    => $nom,
-                ':prenom' => $prenom,
-                ':email'  => $email,
-                ':mdp'    => $mdp,
-                ':pseudo' => $pseudo
-            ]);
-
-            echo json_encode([
-                "status"  => "success",
-                "message" => "Compte créé"
-            ]);
-
-        } else {
-            http_response_code(400);
-            echo json_encode([
-                "status" => "error",
-                "message" => "Veuillez remplir tous les champs"
-            ]);
-        }
-        exit;
-    }
-}
-
 
 // ======================================================================
 // RECUPERER LES DONNEES POUR LES METTRE DANS LE FICHIER TableauDonnes.php
@@ -313,7 +251,7 @@ if ($req_type === 'GET') {
     }
 }
 // =======================
-// AJOUTER ALERTE (OBLIGATOIRE)
+// AJOUTER ALERTE 
 // =======================
 
 if ($req_type === 'POST') {
