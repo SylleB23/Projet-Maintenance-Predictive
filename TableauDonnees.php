@@ -37,9 +37,9 @@
  
 <section>
 <h2>Tableau de données</h2>
-<div id="tableauDonnees"></div>
+<div id="tableauDonnees">
+</div>
 </section>
- 
 <footer>
 <p>&copy; 2026 – Projet Maintenance prédictive</p>
 </footer>

@@ -1,7 +1,7 @@
 // ========================================
 // CONFIGURATION MQTT
 // ========================================
- 
+
 const MQTT_HOST      = "172.18.201.103";
 const MQTT_PORT      = 9001;
 const MQTT_CLIENT_ID = "mqttx_64eebdb6";
@@ -9,42 +9,42 @@ const MQTT_TOPIC     = "/verin/commande";
 const MQTT_TOPIC2    = "/verin/reponse";
 const MQTT_TOPIC3    = "/verin/alerte";
 let clientMqtt;
- 
+
 // ========================================
 // GESTION DU MENU BURGER
 // ========================================
- 
+
 const burgerMenu = document.getElementById('burgerMenu');
 const navLinks = document.getElementById('leMenu');
 const FermerMenu = document.getElementById('FermerMenu');
- 
+
 if (burgerMenu && navLinks) {
     burgerMenu.addEventListener('click', () => {
         burgerMenu.classList.toggle('ouvert');
         navLinks.classList.toggle('ouvert');
     });
 }
- 
+
 if (FermerMenu) {
     FermerMenu.addEventListener('click', () => {
         burgerMenu.classList.toggle('ouvert');
         navLinks.classList.toggle('ouvert');
     });
 }
- 
+
 // ========================================
-// AUTHENTIFICATION REST
+// AUTHENTIFICATION REST (ton API)
 // ========================================
- 
+
 function Seconnecter() {
     const email = document.getElementById('email').value;
     const mdp = document.getElementById('mdp').value;
- 
+
     if (!email || !mdp) {
         alert("Veuillez remplir tous les champs");
         return;
     }
- 
+
     fetch("rest.php/connexion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,7 +64,7 @@ function Seconnecter() {
         alert("Erreur serveur");
     });
 }
- 
+
 function Inscription() {
     const nom = document.getElementById('nom').value;
     const prenom = document.getElementById('prenom').value;
@@ -72,14 +72,14 @@ function Inscription() {
     const email = document.getElementById('email').value;
     const mdp = document.getElementById('mdp').value;
     const mdpConfirm = document.getElementById('mdpConfirm').value;
- 
+
     const errorMessage = document.getElementById('errorMessage');
- 
+
     if (errorMessage) {
         errorMessage.style.display = "none";
         errorMessage.textContent = "";
     }
- 
+
     function showError(msg) {
         if (errorMessage) {
             errorMessage.style.display = "block";
@@ -89,48 +89,48 @@ function Inscription() {
             alert(msg);
         }
     }
- 
+
     if (!nom || !prenom || !pseudo || !email || !mdp) {
         showError('Veuillez remplir tous les champs');
         return;
     }
- 
+
     if (mdp !== mdpConfirm) {
         showError('Les mots de passe ne correspondent pas');
         return;
     }
- 
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         showError('Veuillez entrer une adresse email valide');
         return;
     }
- 
+
     if (mdp.length < 8) {
         showError('Le mot de passe doit contenir au moins 8 caractères');
         return;
     }
- 
+
     if (!/[A-Z]/.test(mdp)) {
         showError('Le mot de passe doit contenir au moins une lettre majuscule');
         return;
     }
- 
+
     if (!/[a-z]/.test(mdp)) {
         showError('Le mot de passe doit contenir au moins une lettre minuscule');
         return;
     }
- 
+
     if (!/[0-9]/.test(mdp)) {
         showError('Le mot de passe doit contenir au moins un chiffre');
         return;
     }
- 
+
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(mdp)) {
         showError('Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*...)');
         return;
     }
- 
+
     fetch("rest.php/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,11 +150,11 @@ function Inscription() {
         showError("Erreur de connexion au serveur");
     });
 }
- 
+
 // ========================================
 // TRANSITION / COMPTE À REBOURS
 // ========================================
- 
+
 function initTransition() {
     const TransitionElement = document.getElementById('transition');
     if (TransitionElement) {
@@ -169,7 +169,7 @@ function initTransition() {
         }, 1000);
     }
 }
- 
+
 // ========================================
 // TABLEAU DONNÉES CAPTEURS (REST)
 // ========================================
@@ -180,7 +180,7 @@ async function recupererDonneesCapteurs() {
         const reponseAPI = await reponse.json();
  
         let table = "<table class='tableau_statistique'>";
-        table += "<tr><th>ID</th><th>Scenario</th><th>React Extract</th><th>React Retract</th><th>Travel Extract</th><th>Travel Retract</th></tr>";
+        table += "<tr><th>ID</th><th>Scenario</th><th>React Extract</th><th>React Retract</th><th>Travel Extract</th><th>Travel Retract</th><th>Date</th></tr>";
  
         for (let i = 0; i < reponseAPI.length; i++) {
             let d = reponseAPI[i];
@@ -191,6 +191,7 @@ async function recupererDonneesCapteurs() {
             table += "<td>" + d.Time_React_Retract1 + "</td>";
             table += "<td>" + d.Time_Travel_Extract1 + "</td>";
             table += "<td>" + d.Time_Travel_Retract1 + "</td>";
+            table += "<td>" + d.date + "</td>";
             table += "</tr>";
         }
  
@@ -210,29 +211,28 @@ async function recupererDonneesAlertes() {
     try {
         const reponse = await fetch("rest.php/alertes");
         const reponseAPI = await reponse.json();
- 
+
         let table = "<table class='tableau_statistique'>";
-        table += "<tr><th>ID</th><th>Scénario</th><th>Vérin</th><th>Type</th><th>Date</th></tr>";
- 
+        table += "<tr><th>ID</th><th>Vérin</th><th>Type</th><th>Date</th></tr>";
+
         for (let i = 0; i < reponseAPI.length; i++) {
             let a = reponseAPI[i];
             table += "<tr>";
-            table += "<td>" + a.idalertes + "</td>";
-            table += "<td>" + a.idscenario + "</td>";
-            table += "<td>" + a.idverin + "</td>";
-            table += "<td>" + a.type_alerte + "</td>";
-            table += "<td>" + a.date + "</td>";
+            table += "<td>" + (a.idalertes ?? '') + "</td>";
+            table += "<td>" + (a.idverin ?? '') + "</td>";//?? obligation sinon aucune données s'affichent(on est sur du temps reel)
+            table += "<td>" + (a.type_alerte ?? '') + "</td>";
+            table += "<td>" + (a.date ?? '') + "</td>";
             table += "</tr>";
         }
- 
+
         table += "</table>";
-        document.getElementById("tableauAlertes").innerHTML = table;
- 
+        const container = document.getElementById("tableauAlertes");
+        if (container) container.innerHTML = table;
+
     } catch (error) {
         console.error("Erreur récupération alertes :", error);
     }
 }
- 
 // ========================================
 // GRAPHE CHART.JS
 // ========================================
@@ -348,13 +348,11 @@ function ajouterPointGraphe(heure, valRE, valRR, valTE, valTR) {
  
     monGraph.update("none");
 }
- 
 // ========================================
 // POPUP ALERTES TEMPS RÉEL
 // ========================================
- 
+
 function afficherPopupAlerte(alerte) {
-    // Pour MQTT
     const typeAlerte = alerte.type || alerte.type_alerte || "Anomalie";
     const idVerin = alerte.idverin || alerte.cycle || "?";
     const dateAlerte = alerte.date || alerte.timestamp || new Date().toLocaleString();
@@ -370,43 +368,37 @@ function afficherPopupAlerte(alerte) {
             <h3>⚠️ ALERTE</h3>
             <p><strong>Type :</strong> ${typeAlerte}</p>
             <p><strong>Gravité :</strong> ${gravite}</p>
-            <p><strong>Vérin / Cycle :</strong> ${idVerin}</p>
+            <p><strong>Cycle :</strong> ${idVerin}</p>
             <p><strong>Date :</strong> ${dateAlerte}</p>
             <a href="Historique.php" class="popup-lien">📋 Voir l'historique des alertes →</a>
         </div>
     `;
-  document.body.appendChild(popup);
-popup.querySelector(".popup-close").onclick = () => popup.remove();
-setTimeout(() => { if (popup.parentNode) popup.remove(); }, 5000);
+
+    document.body.appendChild(popup);
+    popup.querySelector(".popup-close").onclick = () => popup.remove();
+    setTimeout(() => { if (popup.parentNode) popup.remove(); }, 5000);
 }
- 
+
 // ========================================
-// CONNEXION MQTT (Paho)
+// CONNEXION MQTT (Paho) – sans affichage de statut
 // ========================================
- 
+
 function initMQTT() {
-    const statutLabel = document.getElementById("statutMQTT");
- 
     if (clientMqtt && clientMqtt.isConnected()) return;
- 
+
     clientMqtt = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, MQTT_CLIENT_ID);
- 
+
     clientMqtt.onConnectionLost = () => {
-        if (statutLabel) {
-            statutLabel.style.background = "red";
-            statutLabel.textContent = "❌ MQTT Déconnecté";
-        }
         setTimeout(initMQTT, 5000);
     };
- 
+
     clientMqtt.onMessageArrived = (message) => {
         try {
             const data = JSON.parse(message.payloadString);
             console.log("Message MQTT reçu :", data);
- 
+
             const heure = new Date().toLocaleTimeString();
- 
-            // CAS 1 : données temps réel sur /verin/reponse → ajout au graphe
+
             if (message.destinationName === MQTT_TOPIC2) {
                 if (data.Time_React_Extract1 !== undefined || data.T_REACTION_1 !== undefined) {
                     const valRE = parseFloat(data.Time_React_Extract1 || data.T_REACTION_1) || 0;
@@ -415,40 +407,29 @@ function initMQTT() {
                     const valTR = parseFloat(data.Time_Travel_Retract1 || data.T_ALLER_2)   || 0;
                     ajouterPointGraphe(heure, valRE, valRR, valTE, valTR);
                 }
-            }
- 
-            // CAS 2 : alerte reçue sur /verin/alerte → popup
-            else if (message.destinationName === MQTT_TOPIC3) {
+            } else if (message.destinationName === MQTT_TOPIC3) {
                 afficherPopupAlerte(data);
             }
- 
+
         } catch (e) {
             console.error("Erreur parsing MQTT :", message.payloadString, e);
         }
     };
- 
+
     clientMqtt.connect({
         onSuccess: () => {
-            if (statutLabel) {
-                statutLabel.style.background = "#27ae60";
-                statutLabel.textContent = "✅ MQTT Connecté";
-            }
             clientMqtt.subscribe(MQTT_TOPIC);
             clientMqtt.subscribe(MQTT_TOPIC2);
             clientMqtt.subscribe(MQTT_TOPIC3);
         },
         onFailure: (err) => {
-            if (statutLabel) {
-                statutLabel.style.background = "red";
-                statutLabel.textContent = "❌ Échec connexion MQTT";
-            }
             console.error("Échec connexion MQTT :", err.errorMessage);
             setTimeout(initMQTT, 5000);
         },
         useSSL: false
     });
 }
- 
+
 // ========================================
 // LANCEMENT AU CHARGEMENT DE LA PAGE
 // ========================================
@@ -456,12 +437,11 @@ function initMQTT() {
 document.addEventListener('DOMContentLoaded', function () {
     initTransition();
     initMQTT();
-    
-    // Appel des tableaux seulement si les conteneurs existent sur la page
+
     if (document.getElementById("tableauDonnees")) {
         recupererDonneesCapteurs();
     }
-    
+
     if (document.getElementById("tableauAlertes")) {
         recupererDonneesAlertes();
     }

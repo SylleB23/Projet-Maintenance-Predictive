@@ -1,291 +1,144 @@
 <?php
 header("Content-Type: application/json");
+
 try {
-    // Connexion à la BD
     $pdo = new PDO(
-        "mysql:host=172.18.201.103;dbname=festo;charset=utf8","sylleman","festo",
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ]
+        "mysql:host=172.18.201.103;dbname=festo;charset=utf8",
+        "sylleman",
+        "festo",
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
-} catch (PDOException $erreurmec) {
+} catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(["erreur" => "Connexion base de données échouée"]);
     exit;
 }
 
-$req_type = $_SERVER['REQUEST_METHOD'];
-$cheminURL = $_SERVER['PATH_INFO'] ?? '/'; // ?? permet d'acceder au serveur.Sans ca le msg "impossible d'accéder au serveur" s'afficheet évite Undefined index: PATH_INFO -> garantit que $cheminURL a toujours une valeur
-$cheminURL_tableau = explode('/', trim($cheminURL, '/')); // trim: ajoute au debut ou efface des caracteres a la fin
+$method = $_SERVER['REQUEST_METHOD'];
+$path = $_SERVER['PATH_INFO'] ?? '/';
+$segments = explode('/', trim($path, '/'));
 
+// ===========================
+// POST /connexion
+// ===========================
+if ($method === 'POST' && isset($segments[0]) && $segments[0] === 'connexion') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $email = $data['email'] ?? '';
+    $mdp   = $data['mdp'] ?? '';
 
-   // =======================
-    // Connexion
-    // =======================
-
-if ($req_type === 'POST') { 
-
-    if (isset($cheminURL_tableau[0]) && $cheminURL_tableau[0] === "connexion") {//ligne tres impotante sinon le chemin get connexion ne fonctionne pas 
-
-        // Lecture du JSON envoyé par Festo.js
-        $json = file_get_contents('php://input');
-        $donneesRecues = json_decode($json, true);
-
-        // Récupération des données en les lisant et en verifiant si elles sont bien presentes
-        $email = $donneesRecues['email'] ?? '';  
-        // ca permet d'eviter qu'il n'y ait pas de valeur et de champs inexistants
-        $mdp = $donneesRecues['mdp'] ?? '';
-
-        if (!empty($email) && !empty($mdp)) {
-
-            // va dans la bd et recherche email
-            //  on NE met PAS le mdp ici car il est hashé par malik
-            $requete = $pdo->prepare(
-                "SELECT * FROM utilisateur WHERE email = ?"
-            );
-            $requete->execute([$email]);
-            $user = $requete->fetch(PDO::FETCH_ASSOC);
-            
-
-            // verification du mot de passe hashé
-            if ($user && password_verify($mdp, $user['mdp'])) {
-
-                // Réponse attendue par Festo.js
-                echo json_encode([
-                    "status" => "success",
-                    "user"   => $user['nom']
-                ]);
-
-            } else {
-                http_response_code(401);
-                echo json_encode([
-                    "status" => "error",
-                    "message" => "Email ou mot de passe incorrect"
-                ]);
-            }
-
-        } else {
-            http_response_code(400);
-            echo json_encode([
-                "status" => "error",
-                "message" => "Veuillez remplir tous les champs"
-            ]);
-        }
+    if (empty($email) || empty($mdp)) {
+        http_response_code(400);
+        echo json_encode(["status" => "error", "message" => "Veuillez remplir tous les champs"]);
         exit;
     }
+
+    $stmt = $pdo->prepare("SELECT * FROM utilisateur WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && password_verify($mdp, $user['mdp'])) {
+        echo json_encode(["status" => "success", "user" => $user['nom']]);
+    } else {
+        http_response_code(401);
+        echo json_encode(["status" => "error", "message" => "Email ou mot de passe incorrect"]);
+    }
+    exit;
 }
 
+// ===========================
+// POST /inscription
+// ===========================
+if ($method === 'POST' && isset($segments[0]) && $segments[0] === 'inscription') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $nom    = $data['nom'] ?? '';
+    $prenom = $data['prenom'] ?? '';
+    $pseudo = $data['pseudo'] ?? '';
+    $email  = $data['email'] ?? '';
+    $mdp    = $data['mdp'] ?? '';
 
-    // =======================
-    // Récupérer un utilisateur
-    // =======================
-    if ($cheminURL_tableau[0] === "utilisateur") {
-
-        // Lecture du JSON envoyé par Festo.js
-        $json = file_get_contents('php://input');
-        $donneesRecues = json_decode($json, true);
-
-        // Récupération des données en les lisant et en verifiant si elles sont bien presentes dans la BD
-        $email = $donneesRecues['email'] ?? '';
-
-        if (!empty($email)) {
-
-            // va dans la bd et recherche l'utilisateur via son email
-            $requete = $pdo->prepare(
-                "SELECT nom, prenom, email, pseudo FROM utilisateur WHERE email = ?"
-            );
-            $requete->execute([$email]);
-
-            $user = $requete->fetch(PDO::FETCH_ASSOC);
-
-            if ($user) {
-                // Réponse attendue par Festo.js
-                echo json_encode([
-                    "status" => "success",
-                    "utilisateur" => $user
-                ]);
-            } else {
-                http_response_code(404);
-                echo json_encode([
-                    "status" => "error",
-                    "message" => "Utilisateur introuvable"
-                ]);
-            }
-
-        } else {
-            http_response_code(400);
-            echo json_encode([
-                "status" => "error",
-                "message" => "Email manquant"
-            ]);
-        }
+    if (empty($nom) || empty($prenom) || empty($pseudo) || empty($email) || empty($mdp)) {
+        http_response_code(400);
+        echo json_encode(["status" => "error", "message" => "Tous les champs sont requis"]);
         exit;
     }
 
-
-
-// ======================================================================
-// RECUPERER LES DONNEES POUR LES METTRE DANS LE FICHIER TableauDonnes.php
-// ======================================================================
-
-if ($req_type === 'GET') {
-
-    if ($cheminURL_tableau[0] === "donnees") {
-
-        $requete = $pdo->prepare(
-            "SELECT iddonnees,idscenario,
-            Time_React_Extract1,
-            Time_React_Retract1,
-            Time_Travel_Extract1,
-            Time_Travel_Retract1
-            FROM donnees"
-        );
-
-        $requete->execute();
-
-        $resultat = $requete->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode($resultat);
+    $check = $pdo->prepare("SELECT idutilisateur FROM utilisateur WHERE email = ?");
+    $check->execute([$email]);
+    if ($check->fetch()) {
+        http_response_code(409);
+        echo json_encode(["status" => "error", "message" => "Email déjà utilisé"]);
         exit;
     }
+
+    $hash = password_hash($mdp, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO utilisateur (nom, prenom, email, mdp, pseudo) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$nom, $prenom, $email, $hash, $pseudo]);
+
+    echo json_encode(["status" => "success", "user" => $nom]);
+    exit;
 }
 
-// =======================================================
-// ALERTES  POUR LES METTRE DANS LE FICHIER Historique.php
-// =======================================================
-
-if ($req_type === 'GET') {
-
-    if ($cheminURL_tableau[0] === "alertes") {
-
-        $requete = $pdo->prepare(
-            "SELECT 
-                alerte.idalertes,
-                alerte.idscenario,
-                alerte.idverin,
-                alerte.type_alerte,
-                scenario.date
-             FROM alertes alerte
-             JOIN scenario scenario
-             ON alerte.idscenario = scenario.idscenario
-             ORDER BY scenario.date DESC"
-        );
-
-        $requete->execute();
-
-        $resultat = $requete->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode($resultat);
-
-        exit;
-    }
-
-}
-// ==========================================================
-// GRAPHE POUR L'AFFICHER DANS LE FICHIER EspacePersonnel.php
-// ==========================================================
-
-if ($req_type === 'GET') {
-
-    if ($cheminURL_tableau[0] === "graphe") {
-
-        $idscenario = $cheminURL_tableau[1] ?? null;
-
-        if (!$idscenario) {
-            http_response_code(400);
-            echo json_encode(["erreur" => "ID scenario manquant"]);
-            exit;
-        }
-
-        $requete = $pdo->prepare(
-            "SELECT 
-                d.date,
-                d.Time_React_Extract1,
-                d.Time_React_Retract1,
-                d.Time_Travel_Extract1,
-                d.Time_Travel_Retract1
-            FROM donnees d
-            WHERE d.idscenario = ?
-            ORDER BY d.date ASC
-            LIMIT 50
-        "
-        );
-
-        $requete->execute([$idscenario]);
-
-        $resultat = $requete->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode($resultat);
-        exit;
-    }
-}
-// =======================
-// DERNIERE ALERTE (temps réel)
-// =======================
-
-if ($req_type === 'GET') {
-
-    if ($cheminURL_tableau[0] === "derniere-alerte") {
-
-        $requete = $pdo->prepare(
-            "SELECT 
-                alerte.idalertes,
-                alerte.idscenario,
-                alerte.idverin,
-                alerte.type_alerte,
-                scenario.date
-             FROM alertes alerte
-             JOIN scenario scenario
-             ON alerte.idscenario = scenario.idscenario
-             ORDER BY scenario.date DESC
-             LIMIT 1"
-        );
-
-        $requete->execute();
-
-        $resultat = $requete->fetch(PDO::FETCH_ASSOC);
-
-        echo json_encode($resultat);
-
-        exit;
-    }
-}
-// =======================
-// AJOUTER ALERTE 
-// =======================
-
-if ($req_type === 'POST') {
-
-    if ($cheminURL_tableau[0] === "ajouter-alerte") {
-
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        $idscenario = $data['idscenario'] ?? null;
-        $idverin = $data['idverin'] ?? 1;
-        $type = $data['type_alerte'] ?? "anomalie";
-
-        if ($idscenario) {
-
-            $requete = $pdo->prepare(
-                "INSERT INTO alertes (idscenario, idverin, type_alerte)
-                 VALUES (?, ?, ?)"
-            );
-
-            $requete->execute([$idscenario, $idverin, $type]);
-
-            echo json_encode(["status" => "ok"]);
-        } else {
-            http_response_code(400);
-            echo json_encode(["erreur" => "idscenario manquant"]);
-        }
-
-        exit;
-    }
+// ===========================
+// GET /donnees
+// ===========================
+if ($method === 'GET' && isset($segments[0]) && $segments[0] === 'donnees') {
+    $stmt = $pdo->prepare("
+        SELECT iddonnees, idscenario,
+               Time_React_Extract1, Time_React_Retract1,
+               Time_Travel_Extract1, Time_Travel_Retract1,date
+        FROM donnees
+    ");
+    $stmt->execute();
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    exit;
 }
 
-// =======================
-// ROUTE INCONNUE
-// =======================
+// ===========================
+// GET /alertes
+// ===========================
+if ($method === 'GET' && isset($segments[0]) && $segments[0] === 'alertes') {
+    $stmt = $pdo->prepare("
+        SELECT 
+            a.idalertes,
+            a.idscenario,
+            a.idverin,
+            a.type_alerte,
+            a.date
+        FROM alertes a
+        LEFT JOIN scenario s ON a.idscenario = s.idscenario
+        ORDER BY s.date DESC
+    ");
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($result);
+    exit;
+}
+
+// ===========================
+// GET /utilisateur (optionnel, pour Postman)
+// ===========================
+if ($method === 'GET' && isset($segments[0]) && $segments[0] === 'utilisateur') {
+    $email = $_GET['email'] ?? '';
+    if (empty($email)) {
+        http_response_code(400);
+        echo json_encode(["erreur" => "Email manquant"]);
+        exit;
+    }
+    $stmt = $pdo->prepare("SELECT nom, prenom, email, pseudo FROM utilisateur WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($user) {
+        echo json_encode(["status" => "success", "utilisateur" => $user]);
+    } else {
+        http_response_code(404);
+        echo json_encode(["status" => "error", "message" => "Utilisateur introuvable"]);
+    }
+    exit;
+}
+
+// ===========================
+// Route inconnue
+// ===========================
 http_response_code(404);
-echo json_encode(["erreur" => "La route est inconnue"]);
+echo json_encode(["erreur" => "Route inconnue"]);
 exit;
